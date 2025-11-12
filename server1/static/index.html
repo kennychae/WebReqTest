@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Server1 Front</title>
+</head>
+<body>
+  <div class="phone">
+    <header>
+      <div class="title"><input id="nameInput" placeholder="예: answer1" value="answer1" /></div>
+    </header>
+    <main>
+      <button id="requestBtn">서버2에 요청하기</button>
+      <div class="result" id="resultBox"></div>
+      <div class="hint">서버1 → 서버2 프록시 예제 name을 입력하고 버튼을 눌러보세요.</div>
+    </main>
+  </div>
+
+  <script>
+    const btn = document.getElementById("requestBtn");
+    const input = document.getElementById("nameInput");
+    const box = document.getElementById("resultBox");
+
+    btn.addEventListener("click", async () => {
+      const name = input.value.trim();
+      if (!name) {
+        box.textContent = "name을 입력하세요.";
+        return;
+      }
+      btn.disabled = true;
+      box.textContent = "요청 중...";
+      try {
+        const res = await fetch(`/api/query?name=${encodeURIComponent(name)}`);
+        const data = await res.json();
+        if (!res.ok) {
+          box.textContent = `에러(${res.status}): ${data.detail || "요청 실패"}`;
+          return;
+        }
+        box.textContent = `name: ${data.name}\ndata: ${data.data}`;
+      } catch (err) {
+        box.textContent = `에러: ${err}`;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
